@@ -13,4 +13,9 @@ export interface PlmClient {
 
     getItemRevisions(itemUid: string): Promise<any>;
 
+    getCadRefsForProPrt(uid: string): Promise<any>;
+
+    getDatasetsForRevision(itemRevUid: string): Promise<any>;
+    getDatasetRefList(datasetUid: string): Promise<any>;
+
 }

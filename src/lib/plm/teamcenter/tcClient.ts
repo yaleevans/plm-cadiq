@@ -179,6 +179,21 @@ export class TcClient {
         return res.data;
     }
 
+    async getRefList(object: TcUidObject) {
+        // calls: /tc/JsonRestServices/Core-2006-03-DataManagement/getProperties
+        // attributes: ["ref_list"]
+        const serviceData = await this.getProperties([object], ['ref_list']);
+        return serviceData; // raw ServiceData (modelObjects, props, etc)
+    }
+
+    async getDatasetsForRevision(itemRevUid: string) {
+        return this.getRefList({ uid: itemRevUid, type: 'ItemRevision' });
+    }
+
+    async getDatasetRefList(datasetUid: string) {
+        return this.getRefList({ uid: datasetUid, type: 'Dataset' });
+    }
+
     /**
      * Convenience wrapper:
      * given an Item UID, fetch revision_list

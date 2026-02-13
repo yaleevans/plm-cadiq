@@ -20,6 +20,16 @@ export function createWindchillPlmClient(cfg: WindchillConfig): PlmClient {
         },
         async getItemRevisions(itemUid: string): Promise<any> {
             throw new Error('Not applicable for Windchill');
+        },
+        async getCadRefsForProPrt(uid: string): Promise<any> {
+            throw new Error('Not applicable for Windchill');
+        },
+        async getDatasetsForRevision(itemRevUid: string): Promise<any> {
+            throw new Error('Not applicable for Windchill');
+        },
+        async getDatasetRefList(datasetUid: string): Promise<any> {
+            throw new Error('Not applicable for Windchill');
         }
+
     };
 }

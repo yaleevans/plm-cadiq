@@ -40,7 +40,20 @@ export function createTeamcenterPlmClient(cfg: TeamcenterConfig): PlmClient {
 
         async getItemRevisions(itemUid: string) {
             return tc.getItemRevisions(itemUid);
-        }
+        },
+
+        async getCadRefsForProPrt(uid: string) {
+            return tc.getRefList({ uid, type: 'ProPrt' });
+        },
+
+        async getDatasetsForRevision(itemRevUid: string) {
+            return tc.getDatasetsForRevision(itemRevUid);
+        },
+        async getDatasetRefList(datasetUid: string) {
+            return tc.getDatasetRefList(datasetUid);
+        },
+
+
 
     };
 
