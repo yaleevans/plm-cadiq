@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import '../app.css';
 
 	const nav = [
 		{ href: '/', label: 'Home', icon: '🏠' },
@@ -56,88 +57,3 @@
 		</main>
 	</div>
 {/if}
-
-<style>
-	.app {
-		display: grid;
-		grid-template-columns: 240px 1fr;
-		min-height: 100vh;
-		font-family:
-			system-ui,
-			-apple-system,
-			Segoe UI,
-			Roboto,
-			Arial,
-			sans-serif;
-	}
-
-	.sidebar {
-		border-right: 1px solid #ddd;
-		padding: 16px;
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
-	}
-
-	.brand {
-		font-weight: 800;
-		font-size: 18px;
-		margin-bottom: 8px;
-	}
-
-	.nav {
-		display: grid;
-		gap: 6px;
-	}
-
-	.nav a {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		text-decoration: none;
-		color: inherit;
-		padding: 10px 10px;
-		border-radius: 8px;
-	}
-
-	.nav a:hover {
-		background: #f3f3f3;
-	}
-
-	.nav a.selected {
-		background: #e9eefc;
-		border: 1px solid #c9d6ff;
-	}
-
-	.icon {
-		width: 22px;
-		text-align: center;
-	}
-
-	.label {
-		font-size: 14px;
-	}
-
-	.logout {
-		margin-top: auto;
-	}
-
-	.main {
-		padding: 16px 22px;
-	}
-
-	.header {
-		border-bottom: 1px solid #ddd;
-		padding-bottom: 10px;
-		margin-bottom: 14px;
-	}
-
-	.header h1 {
-		margin: 0;
-		font-size: 22px;
-	}
-
-	.content {
-		padding-top: 6px;
-	}
-</style>
