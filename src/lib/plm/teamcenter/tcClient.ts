@@ -120,9 +120,36 @@ export class TcClient {
                         "checkThreshold": "1"
                     },
                     "searchFilterFieldSortType": "Priority",
-                    "startIndex": 0
+                    "startIndex": 0,
+                    "searchFilterMap6": {},
+                    "searchSortCriteria": [],
+                    "attributesToInflate": [],
+                    "internalPropertyName": "",
+                    "columnFilters": [],
+                    "cursor": {
+                        "startIndex": 0,
+                        "endIndex": 0,
+                        "startReached": false,
+                        "endReached": false
+                    },
+                    "focusObjUid": "",
+                    "pagingType": ""
                 },
                 "inflateProperties": false,
+                "columnConfigInput": {
+                    "clientName": "",
+                    "hostingClientName": "",
+                    "clientScopeURI": "",
+                    "operationType": "",
+                    "columnsToExclude": []
+                },
+                "saveColumnConfigData": {
+                    "scope": "",
+                    "scopeName": "",
+                    "clientScopeURI": "",
+                    "columnConfigId": "",
+                    "columns": []
+                },
                 "noServiceData": false
             }
         };
