@@ -3,7 +3,7 @@
 	import { createPlmClient } from '$lib/plm/createPlmClient';
 	import type { TenantConfig } from '$lib/types/config';
 
-	let term = '';
+	let term = 'us*001';
 	let status = 'Initializing...';
 	let results: any = null;
 	let plm: any = null;
