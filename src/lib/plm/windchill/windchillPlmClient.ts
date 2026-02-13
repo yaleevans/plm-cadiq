@@ -17,6 +17,9 @@ export function createWindchillPlmClient(cfg: WindchillConfig): PlmClient {
         },
         async performSearchViewModel6(term: string): Promise<any> {
             throw new Error('Not applicable for Windchill');
+        },
+        async getItemRevisions(itemUid: string): Promise<any> {
+            throw new Error('Not applicable for Windchill');
         }
     };
 }

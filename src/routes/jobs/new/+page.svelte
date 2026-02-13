@@ -33,6 +33,9 @@
 		}
 	});
 
+	let revisionRows: RevisionRow[] = [];
+	let selectedRevision: RevisionRow | null = null;
+
 	async function doSearch() {
 		if (!plm) {
 			status = 'Not connected to PLM yet';
@@ -40,14 +43,47 @@
 		}
 		if (!term.trim()) return;
 
-		status = 'Searching...';
+		status = 'Searching item...';
+		selectedRevision = null;
+		revisionRows = [];
 
 		try {
-			results = await plm.search(term);
-			status = 'Done ✅';
+			const searchResp = await plm.search(term);
+
+			// get the first item uid from your search response
+			const itemUid =
+				JSON.parse(searchResp.searchResultsJSON).objects?.[0]?.uid ??
+				searchResp?.ServiceData?.plain?.[0];
+
+			if (!itemUid) {
+				status = 'No items found';
+				return;
+			}
+
+			status = 'Loading revisions...';
+			const serviceData = await plm.getItemRevisions(itemUid); // see note below
+
+			revisionRows = tcRevisionListToRows(serviceData);
+			status = revisionRows.length ? 'Select a revision below' : 'No revisions returned';
 		} catch (e: any) {
 			status = `Search failed ❌: ${e?.message ?? e}`;
 		}
+	}
+
+	type RevisionRow = { uid: string; display: string };
+
+	function tcRevisionListToRows(serviceData: any): RevisionRow[] {
+		const itemUid = serviceData?.plain?.[0];
+		const itemObj = itemUid ? serviceData?.modelObjects?.[itemUid] : null;
+		const revList = itemObj?.props?.revision_list;
+
+		const uids: string[] = revList?.dbValues ?? [];
+		const labels: string[] = revList?.uiValues ?? [];
+
+		return uids.map((uid, i) => ({
+			uid,
+			display: labels[i] ?? uid
+		}));
 	}
 </script>
 
@@ -59,6 +95,29 @@
 	<button on:click={doSearch}>Search</button>
 </label>
 
-{#if results}
-	<pre>{JSON.stringify(results, null, 2)}</pre>
+{#if revisionRows.length}
+	<h3>Revisions</h3>
+	<table>
+		<thead>
+			<tr>
+				<th>Revision</th>
+				<th>UID</th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each revisionRows as r}
+				<tr
+					on:click={() => (selectedRevision = r)}
+					style="cursor:pointer; font-weight:{selectedRevision?.uid === r.uid ? 'bold' : 'normal'}"
+				>
+					<td>{r.display}</td>
+					<td>{r.uid}</td>
+				</tr>
+			{/each}
+		</tbody>
+	</table>
+{/if}
+
+{#if selectedRevision}
+	<p>Selected revision: {selectedRevision.display}</p>
 {/if}

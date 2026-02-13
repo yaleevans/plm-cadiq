@@ -36,7 +36,12 @@ export function createTeamcenterPlmClient(cfg: TeamcenterConfig): PlmClient {
         async search(term: string): Promise<any> {
             // nice wrapper (same as performSearchViewModel6 for now)
             return tc.performSearchViewModel6(term);
+        },
+
+        async getItemRevisions(itemUid: string) {
+            return tc.getItemRevisions(itemUid);
         }
+
     };
 
     return client;

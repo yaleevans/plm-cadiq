@@ -10,4 +10,7 @@ export interface PlmClient {
 
     // keep this if you want the raw method exposed
     performSearchViewModel6(term: string): Promise<any>;
+
+    getItemRevisions(itemUid: string): Promise<any>;
+
 }
