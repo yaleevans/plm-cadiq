@@ -110,27 +110,41 @@
 	}
 
 	async function onSelectRevision(r: RevisionRow) {
-		if (!plm) return;
-
 		selectedRevision = r;
 
-		// reset dataset + file state
 		selectedDataset = null;
 		datasetRows = [];
 		fileRows = [];
 		cadStatus = 'Loading datasets...';
 
 		try {
-			// This assumes you added a wrapper method:
-			// plm.getDatasetsForRevision(revUid) -> getProperties(ItemRevision, ["IMAN_specification"])
 			const dsSd = await plm.getDatasetsForRevision(r.uid);
 
+			// datasets attached to revision
 			datasetRows = propListToRows(dsSd, r.uid, 'IMAN_specification');
-			cadStatus = datasetRows.length
-				? 'Select a dataset below'
-				: 'No datasets found for this revision';
+
+			if (!datasetRows.length) {
+				cadStatus = 'No datasets found for this revision';
+				return;
+			}
+
+			// ✅ auto-pick the CAD-ish dataset
+			const cadDs = pickCadDataset(datasetRows);
+			if (!cadDs) {
+				cadStatus = 'No CAD dataset found';
+				return;
+			}
+
+			selectedDataset = cadDs;
+			cadStatus = `Loading files from dataset: ${cadDs.display}...`;
+
+			// ✅ now fetch the files (CAD file(s) live here)
+			const fileSd = await plm.getDatasetRefList(cadDs.uid);
+			fileRows = propListToRows(fileSd, cadDs.uid, 'ref_list');
+
+			cadStatus = fileRows.length ? 'CAD files loaded ✅' : 'Dataset has no files (ref_list empty)';
 		} catch (e: any) {
-			cadStatus = `Dataset lookup failed ❌: ${e?.message ?? e}`;
+			cadStatus = `CAD lookup failed ❌: ${e?.message ?? e}`;
 		}
 	}
 
@@ -151,6 +165,18 @@
 		} catch (e: any) {
 			cadStatus = `File lookup failed ❌: ${e?.message ?? e}`;
 		}
+	}
+
+	function pickCadDataset(datasets: { uid: string; display: string }[]) {
+		// crude but works: look for common CAD keywords in the dataset “display”
+		const needles = ['prt', 'asm', 'cad', 'proe', 'creo', 'nx', 'catia', 'step', 'iges'];
+		const lower = (s: string) => (s ?? '').toLowerCase();
+
+		return (
+			datasets.find((d) => needles.some((n) => lower(d.display).includes(n))) ??
+			datasets[0] ?? // fallback: first dataset
+			null
+		);
 	}
 </script>
 
