@@ -1,85 +1,109 @@
-<script lang="ts">
-	import { goto } from '$app/navigation';
+<div class="auth">
+	<div class="card">
+		<h1 class="title">PLM / CadIQ</h1>
+		<p class="subtitle">Sign in to continue</p>
 
-	let email = '';
-	let password = '';
-	let error = '';
-	let tenants: { id: string; name: string }[] = [];
-	let selectedTenantId = '';
+		<form method="post" action="/api/auth/login" class="form">
+			<label class="field">
+				<span>Email</span>
+				<input name="email" type="email" autocomplete="username" required />
+			</label>
 
-	async function startLogin() {
-		error = '';
-		tenants = [];
-		selectedTenantId = '';
+			<label class="field">
+				<span>Password</span>
+				<input name="password" type="password" autocomplete="current-password" required />
+			</label>
 
-		const res = await fetch('/api/auth/login-start', {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({ email, password })
-		});
-
-		const data = await res.json();
-		if (!data.ok) {
-			error = data.error ?? 'Login failed';
-			return;
-		}
-
-		tenants = data.tenants;
-
-		if (tenants.length === 1) {
-			selectedTenantId = tenants[0].id;
-			await selectTenant();
-		}
-	}
-
-	async function selectTenant() {
-		const res = await fetch('/api/auth/select-tenant', {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({ email, password, tenantId: selectedTenantId })
-		});
-
-		const data = await res.json();
-		if (!data.ok) {
-			error = data.error ?? 'Tenant selection failed';
-			return;
-		}
-
-		await goto('/');
-	}
-</script>
-
-<h1>PLM / CadIQ</h1>
-
-<div style="max-width: 420px; display: grid; gap: 12px;">
-	<label>
-		Email
-		<input bind:value={email} autocomplete="username" />
-	</label>
-
-	<label>
-		Password
-		<input type="password" bind:value={password} autocomplete="current-password" />
-	</label>
-
-	<button on:click={startLogin}>Sign in</button>
-
-	{#if error}
-		<p style="color: red;">{error}</p>
-	{/if}
-
-	{#if tenants.length > 1}
-		<hr />
-		<label>
-			Select tenant
-			<select bind:value={selectedTenantId}>
-				<option value="" disabled>Select…</option>
-				{#each tenants as t}
-					<option value={t.id}>{t.name}</option>
-				{/each}
-			</select>
-		</label>
-
-		<button disabled={!selectedTenantId} on:click={selectTenant}> Continue </button>
-	{/if}
+			<button class="btn" type="submit">Sign in</button>
+		</form>
+	</div>
 </div>
+
+<style>
+	.auth {
+		min-height: 100vh;
+		display: grid;
+		place-items: center;
+		padding: 24px;
+	}
+
+	.card {
+		width: min(520px, 92vw);
+		background: var(--card);
+		border: 1px solid var(--card-border);
+		border-radius: 18px;
+		padding: 28px;
+		backdrop-filter: blur(10px);
+		box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+	}
+
+	.title {
+		margin: 0 0 6px 0;
+		font-size: 34px;
+		font-weight: 800;
+		letter-spacing: 0.2px;
+		color: var(--text);
+	}
+
+	.subtitle {
+		margin: 0 0 18px 0;
+		color: var(--muted);
+	}
+
+	.form {
+		display: grid;
+		gap: 14px;
+	}
+
+	.field {
+		display: grid;
+		gap: 8px;
+	}
+
+	.field span {
+		color: var(--muted);
+		font-size: 14px;
+	}
+
+	input {
+		height: 44px;
+		border-radius: 12px;
+		border: 1px solid var(--input-border);
+		background: var(--input-bg);
+		color: var(--text);
+		padding: 0 12px;
+		outline: none;
+	}
+
+	input::placeholder {
+		color: rgba(255, 255, 255, 0.55);
+	}
+
+	input:focus {
+		border-color: var(--focus);
+		box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.14);
+	}
+
+	.btn {
+		height: 46px;
+		border-radius: 12px;
+		border: 1px solid rgba(255, 255, 255, 0.25);
+		background: rgba(255, 255, 255, 0.18);
+		color: var(--text);
+		font-weight: 700;
+		cursor: pointer;
+		transition:
+			transform 0.05s ease,
+			background 0.2s ease,
+			border-color 0.2s ease;
+	}
+
+	.btn:hover {
+		background: rgba(255, 255, 255, 0.24);
+		border-color: rgba(255, 255, 255, 0.35);
+	}
+
+	.btn:active {
+		transform: translateY(1px);
+	}
+</style>

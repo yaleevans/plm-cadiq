@@ -1,17 +1,48 @@
+:root {
+    --text: #ffffff;
+    --muted: rgba(255, 255, 255, 0.8);
+    --card: rgba(0, 0, 0, 0.55);
+    --card-border: rgba(255, 255, 255, 0.16);
+    --input-bg: rgba(255, 255, 255, 0.12);
+    --input-border: rgba(255, 255, 255, 0.20);
+    --focus: rgba(255, 255, 255, 0.35);
+}
+
 html,
 body {
-    margin: 0;
-    padding: 0;
     height: 100%;
 }
 
-body {
-    background-image: url('/background.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+body>div {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
 }
+
+body {
+    margin: 0;
+    color: #fff;
+    background: url('/background.jpg') center / cover no-repeat fixed;
+}
+
+/* Lighter overlay */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.15);
+    /* try 0.10–0.18 */
+    pointer-events: none;
+    z-index: 0;
+}
+
+#svelte {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+}
+
+
 
 /* optional overlay to improve readability */
 .app-background {
@@ -20,26 +51,30 @@ body {
 }
 
 
+/* App shell */
 .app {
     display: grid;
     grid-template-columns: 240px 1fr;
     min-height: 100vh;
-    font-family:
-        system-ui,
-        -apple-system,
-        Segoe UI,
-        Roboto,
-        Arial,
-        sans-serif;
 }
 
+/* Make panels translucent so you can see background */
 .sidebar {
-    border-right: 1px solid #ddd;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
 }
+
+.main {
+    background: rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(6px);
+}
+
+/* Header also translucent */
+.header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
 
 .brand {
     font-weight: 800;
@@ -82,16 +117,6 @@ body {
 
 .logout {
     margin-top: auto;
-}
-
-.main {
-    padding: 16px 22px;
-}
-
-.header {
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
-    margin-bottom: 14px;
 }
 
 .header h1 {
