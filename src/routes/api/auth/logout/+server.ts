@@ -1,11 +1,10 @@
-import { json } from "@sveltejs/kit";
-import { logout } from "$lib/server/services/authService";
-import type { RequestHandler } from "./$types";
+import { redirect } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ cookies }) => {
-    const sid = cookies.get("session");
-    if (sid) await logout(sid);
+    // delete session cookie
+    cookies.delete('session', { path: '/' });
 
-    cookies.delete("session", { path: "/" });
-    return json({ ok: true });
-}
+    // redirect to login page
+    throw redirect(303, '/login');
+};

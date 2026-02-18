@@ -1,7 +1,8 @@
 <h1>Overview</h1>
+<p>Welcome! This is the CadIQ Job Manager.</p>
 <p>
-	Welcome! This is the CadIQ Job Manager. Use this page to search for CAD files in your favorite PLM
-	system, download them to the local CadIQ server, and start an analysis.
+	Use this page to search for CAD files in your favorite PLM system, download them to the local
+	CadIQ server, and start an analysis.
 </p>
 
 <h1>Instruction</h1>

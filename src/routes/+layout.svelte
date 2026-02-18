@@ -42,7 +42,7 @@
 			</nav>
 
 			<form method="post" action="/api/auth/logout" class="logout">
-				<button type="submit">Logout</button>
+				<button type="submit">🚪 Logout</button>
 			</form>
 		</aside>
 
