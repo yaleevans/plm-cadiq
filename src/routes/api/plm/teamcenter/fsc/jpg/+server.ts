@@ -10,6 +10,9 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 
   const configRepo = new SqliteConfigRepo();
 
+  console.log("jpg preview tenantId =", locals.tenantId);
+
+
   const tenantConfig: TenantConfig = await configRepo.getTenantConfig(locals.tenantId);
 
 
