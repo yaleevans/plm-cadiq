@@ -11,7 +11,7 @@ export class TcClient {
         return /^https?:\/\//i.test(u);
     }
 
-    constructor(baseUrl: string, fscUrl: string) {
+    constructor(baseUrl: string, fscUrl?: string) {
         const normalizedBase = baseUrl.replace(/\/+$/, '');
 
         // JSON/Rest services client (8080 typically)
@@ -25,10 +25,13 @@ export class TcClient {
 
         // FSC client (4544 typically)
         // If caller doesn't pass fscUrl, derive it from baseUrl host
-        const derivedFscUrl = this.deriveFscUrl(fscUrl);
-        const normalizedFsc =
-            (fscUrl ?? (this.isAbsoluteUrl(normalizedBase) ? this.deriveFscUrl(normalizedBase) : '/fsc'))
-                .replace(/\/+$/, '');
+        const normalizedFsc = (
+            fscUrl
+                ? fscUrl                              // e.g. "/fsc" in dev proxy
+                : this.isAbsoluteUrl(normalizedBase)  // e.g. "http://host:8080"
+                    ? this.deriveFscUrl(normalizedBase) // -> "http://host:4544"
+                    : '/fsc'                            // fallback for relative baseUrl
+        ).replace(/\/+$/, '');
 
         this.fsc = axios.create({
             baseURL: normalizedFsc,
