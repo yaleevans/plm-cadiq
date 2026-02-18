@@ -6,6 +6,11 @@ declare global {
 		interface Locals {
 			session: import("$lib/server/types/auth").Session | null;
 		}
+		interface Locals {
+			tcBaseUrl: string; // e.g. "https://tc.company.com/tc"
+			tcTicket: string;  // or null if not logged in
+			tenantId: string;
+		}
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}

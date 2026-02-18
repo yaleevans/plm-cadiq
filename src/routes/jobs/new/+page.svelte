@@ -21,6 +21,9 @@
 	let fileRows: FileRow[] = [];
 	let cadStatus = '';
 
+	let selectedUid: string | null = null;
+	let jpgImanFileUid: string | null = null;
+
 	onMount(async () => {
 		try {
 			status = 'Loading config...';
@@ -178,6 +181,17 @@
 			null
 		);
 	}
+
+	function selectRow(f: FileRow) {
+		selectedUid = f.uid;
+
+		// Only allow JPG rows to trigger preview
+		if (f.display.toLowerCase().endsWith('.jpg')) {
+			jpgImanFileUid = f.uid;
+		} else {
+			jpgImanFileUid = null;
+		}
+	}
 </script>
 
 <p>{status}</p>
@@ -254,7 +268,11 @@
 			</thead>
 			<tbody>
 				{#each fileRows as f}
-					<tr>
+					<tr
+						on:click={() => selectRow(f)}
+						class:selected={selectedUid === f.uid}
+						style="cursor: pointer;"
+					>
 						<td>{f.display}</td>
 						<td>{f.uid}</td>
 					</tr>
@@ -263,3 +281,18 @@
 		</table>
 	{/if}
 {/if}
+
+{#if jpgImanFileUid}
+	<h3>Preview:</h3>
+	<img
+		src={`/api/plm/teamcenter/fsc/jpg?uid=${jpgImanFileUid}&t=${Date.now()}`}
+		style="max-width: 100%; max-height: 500px;"
+	/>
+{/if}
+
+<style>
+	tr.selected {
+		background-color: #2a4365;
+		color: white;
+	}
+</style>

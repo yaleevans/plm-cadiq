@@ -3,7 +3,12 @@ import { getSession } from "$lib/server/services/authService";
 
 export const handle: Handle = async ({ event, resolve }) => {
     const sid = event.cookies.get("session");
+    const tenantId = event.cookies.get('tenant_id');
     event.locals.session = sid ? await getSession(sid) : null;
+
+    if (tenantId) {
+        event.locals.tenantId = tenantId;
+    }
 
     const isPublic =
         event.url.pathname.startsWith("/login") ||

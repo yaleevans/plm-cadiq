@@ -5,15 +5,44 @@ type TcUidObject = { uid: string; type: string };
 
 export class TcClient {
     private api: ReturnType<typeof axios.create>;
+    private fsc: ReturnType<typeof axios.create>;
 
-    constructor(baseUrl: string) {
+    constructor(baseUrl: string, fscUrl?: string) {
+        const normalizedBase = baseUrl.replace(/\/+$/, '');
+
+        // JSON/Rest services client (8080 typically)
         this.api = axios.create({
-            baseURL: baseUrl.replace(/\/+$/, ''),
+            baseURL: normalizedBase,
             withCredentials: true,
             xsrfCookieName: 'XSRF-TOKEN',
             xsrfHeaderName: 'X-XSRF-TOKEN',
             timeout: 30000
         });
+
+        // FSC client (4544 typically)
+        // If caller doesn't pass fscUrl, derive it from baseUrl host
+        const derivedFscUrl = this.deriveFscUrl(normalizedBase);
+        const normalizedFsc = (fscUrl ?? derivedFscUrl).replace(/\/+$/, '');
+
+        this.fsc = axios.create({
+            baseURL: normalizedFsc,
+            withCredentials: true,
+            timeout: 60000,
+            // default for downloads; can be overridden per request
+            responseType: 'arraybuffer'
+        });
+    }
+
+    private deriveFscUrl(baseUrl: string): string {
+        // Examples:
+        //  http://helixcoredev01:8080  -> http://helixcoredev01:4544
+        //  https://host/somepath       -> https://host:4544
+        const u = new URL(baseUrl);
+        u.port = '4544';
+        u.pathname = '';
+        u.search = '';
+        u.hash = '';
+        return u.toString().replace(/\/+$/, '');
     }
 
     async login(user: string, password: string) {
@@ -141,42 +170,98 @@ export class TcClient {
         return res.data; // ServiceData
     }
 
-    // Optional convenience for single object calls
     async getPropertiesOne(object: TcUidObject, attributes: string[]) {
         return this.getProperties([object], attributes);
     }
 
-    /**
-     * Dataset/file references usually live on Dataset.ref_list (or CAD dataset-like objects)
-     */
     async getRefList(object: TcUidObject) {
         return this.getPropertiesOne(object, ['ref_list']);
     }
 
-    /**
-     * ✅ FIX: datasets attached to an ItemRevision are NOT in ref_list.
-     * They are typically in IMAN_specification (relation to Dataset).
-     */
     async getDatasetsForRevision(itemRevUid: string) {
         return this.getPropertiesOne({ uid: itemRevUid, type: 'ItemRevision' }, ['IMAN_specification']);
     }
 
-    /**
-     * Given a Dataset UID, fetch its files via ref_list
-     */
     async getDatasetRefList(datasetUid: string) {
         return this.getRefList({ uid: datasetUid, type: 'Dataset' });
     }
 
-    /**
-     * Given an Item UID, fetch revision_list (Item -> ItemRevision[])
-     */
     async getItemRevisions(itemUid: string) {
         return this.getProperties([{ uid: itemUid, type: 'Item' }], ['revision_list']);
     }
+
+    /**
+     * Get read tickets for one or more ImanFile objects.
+     * You already confirmed this works with: { uid: "...", type: "ImanFile" }.
+     */
+    async getFileReadTickets(files: TcUidObject[]) {
+        const payload = {
+            header: { state: {}, policy: {} },
+            body: { files }
+        };
+
+        const res = await this.api.post(
+            '/tc/JsonRestServices/Core-2006-03-FileManagement/getFileReadTickets',
+            payload,
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+
+        return res.data;
+    }
+
+    /**
+     * Download bytes from FSC using a ticket.
+     * Returns raw bytes + contentType (if provided by FSC).
+     */
+    async downloadFromFsc(ticket: string): Promise<{ bytes: ArrayBuffer; contentType: string }> {
+        if (!ticket) throw new Error('Missing FSC ticket');
+
+        const r = await this.fsc.get(`/fsc/download?ticket=${encodeURIComponent(ticket)}`, {
+            responseType: 'arraybuffer'
+        });
+
+        const contentType =
+            (String((r.headers as any)?.['content-type'] ?? '') || 'application/octet-stream').trim();
+
+        return { bytes: r.data, contentType };
+    }
+
+    /**
+     * Convenience: given an ImanFile UID, get a fresh ticket and immediately download.
+     * This is the "always current ticket" behavior you want for JPG previews.
+     *
+     * NOTE: You may need to adjust the `extractTicket` logic to match your exact TC response shape.
+     */
+    async getJpgPreviewBytes(imanFileUid: string): Promise<{ bytes: ArrayBuffer; contentType: string }> {
+        const ticketRes = await this.getFileReadTickets([{ uid: imanFileUid, type: 'ImanFile' }]);
+        const ticket = this.extractTicket(ticketRes);
+
+        if (!ticket) throw new Error('No ticket returned from getFileReadTickets');
+
+        const dl = await this.downloadFromFsc(ticket);
+
+        // If FSC doesn't send a helpful content-type, you can force jpeg for this endpoint.
+        const contentType = dl.contentType.includes('image/') ? dl.contentType : 'image/jpeg';
+
+        return { bytes: dl.bytes, contentType };
+    }
+
+    private extractTicket(ticketRes: any): string | null {
+        // Your actual shape:
+        // ticketRes.tickets = [ [ [ {uid...} ] ], [ [ "TICKETSTRING" ] ] ]  (effectively)
+        //
+        // From the sample:
+        // ticketRes.tickets[1][0] is the ticket string
+
+        const ticket = ticketRes?.tickets?.[1]?.[0];
+        return typeof ticket === 'string' && ticket.length > 0 ? ticket : null;
+    }
+
 
     async request<T = any>(cfg: AxiosRequestConfig): Promise<T> {
         const res = await this.api.request<T>(cfg);
         return res.data;
     }
+
+
 }
