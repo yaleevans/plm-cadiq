@@ -7,6 +7,10 @@ export class TcClient {
     private api: ReturnType<typeof axios.create>;
     private fsc: ReturnType<typeof axios.create>;
 
+    private isAbsoluteUrl(u: string) {
+        return /^https?:\/\//i.test(u);
+    }
+
     constructor(baseUrl: string, fscUrl?: string) {
         const normalizedBase = baseUrl.replace(/\/+$/, '');
 
@@ -22,7 +26,9 @@ export class TcClient {
         // FSC client (4544 typically)
         // If caller doesn't pass fscUrl, derive it from baseUrl host
         const derivedFscUrl = this.deriveFscUrl(normalizedBase);
-        const normalizedFsc = (fscUrl ?? derivedFscUrl).replace(/\/+$/, '');
+        const normalizedFsc =
+            (fscUrl ?? (this.isAbsoluteUrl(normalizedBase) ? this.deriveFscUrl(normalizedBase) : '/fsc'))
+                .replace(/\/+$/, '');
 
         this.fsc = axios.create({
             baseURL: normalizedFsc,

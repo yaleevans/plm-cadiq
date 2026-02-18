@@ -11,6 +11,13 @@ export default defineConfig({
 				changeOrigin: true
 				// ws: true, // only if you ever need websockets
 				// secure: false, // only needed for https targets with self-signed certs
+			},
+
+			// FSC downloads (4544)
+			'/fsc': {
+				target: 'http://helixcoredev01:4544',
+				changeOrigin: true,
+				secure: false
 			}
 		}
 	}
