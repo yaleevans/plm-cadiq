@@ -11,7 +11,7 @@ export class TcClient {
         return /^https?:\/\//i.test(u);
     }
 
-    constructor(baseUrl: string, fscUrl?: string) {
+    constructor(baseUrl: string, fscUrl: string) {
         const normalizedBase = baseUrl.replace(/\/+$/, '');
 
         // JSON/Rest services client (8080 typically)
@@ -25,7 +25,7 @@ export class TcClient {
 
         // FSC client (4544 typically)
         // If caller doesn't pass fscUrl, derive it from baseUrl host
-        const derivedFscUrl = this.deriveFscUrl(normalizedBase);
+        const derivedFscUrl = this.deriveFscUrl(fscUrl);
         const normalizedFsc =
             (fscUrl ?? (this.isAbsoluteUrl(normalizedBase) ? this.deriveFscUrl(normalizedBase) : '/fsc'))
                 .replace(/\/+$/, '');
@@ -43,6 +43,8 @@ export class TcClient {
         // Examples:
         //  http://helixcoredev01:8080  -> http://helixcoredev01:4544
         //  https://host/somepath       -> https://host:4544
+        console.log("deriveFscUrl baseUrl =", baseUrl);
+
         const u = new URL(baseUrl);
         u.port = '4544';
         u.pathname = '';
