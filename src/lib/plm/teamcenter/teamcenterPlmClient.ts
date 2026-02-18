@@ -9,7 +9,8 @@ export function createTeamcenterPlmClient(cfg: TeamcenterConfig): PlmClient {
     // IMPORTANT for Vite proxy mode:
     // If cfg.baseUrl is "http://helixcoredev01:8080" the browser will hit TC directly (CORS fails).
     // For dev proxy mode, cfg.baseUrl should be '' (empty string) so calls go to localhost:5173/tc/...
-    const tc = new TcClient(cfg.baseUrl);
+    // const tc = new TcClient(cfg.baseUrl);
+    const tc = new TcClient(''); // just for dev testing for now
 
     const client: PlmClient = {
         kind: 'teamcenter',
