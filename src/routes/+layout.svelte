@@ -30,7 +30,7 @@
 {:else}
 	<div class="app">
 		<aside class="sidebar">
-			<div class="brand">PLM / CadIQ</div>
+			<div class="brand">Sabel CAD Validator</div>
 
 			<nav class="nav">
 				{#each nav as item}

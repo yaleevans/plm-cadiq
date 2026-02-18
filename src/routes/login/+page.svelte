@@ -73,7 +73,7 @@
 <main class="auth">
 	<section class="auth-card" aria-label="Login">
 		<header class="auth-header">
-			<h1>PLM / CadIQ</h1>
+			<h1>Sabel CAD Validator</h1>
 			<p>Sign in to continue</p>
 		</header>
 		<form class="auth-fields" autocomplete="on" on:submit|preventDefault={startLogin}>
